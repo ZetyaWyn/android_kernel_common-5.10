@@ -77,24 +77,14 @@ struct audit_fsnotify_mark *audit_alloc_mark(struct audit_krule *krule, char *pa
 	struct audit_fsnotify_mark *audit_mark;
 	struct path path;
 	struct dentry *dentry;
-	struct inode *dir, *child;
-	int ret, allow_dups;
+	int ret;
 
 	if (pathname[0] != '/' || pathname[len-1] == '/')
 		return ERR_PTR(-EINVAL);
 
-	if (!ctx) {
-		dentry = kern_path_parent(pathname, &path);
-		if (IS_ERR(dentry))
-			return ERR_CAST(dentry); /* returning an error */
-		dir = d_inode(path.dentry);
-		child = d_inode(dentry);
-		allow_dups = 0;
-	} else {
-		dir = ctx->dir;
-		child = ctx->child;
-		allow_dups = 1;
-	}
+	dentry = kern_path_parent(pathname, &path);
+	if (IS_ERR(dentry))
+		return ERR_CAST(dentry); /* returning an error */
 
 	audit_mark = kzalloc(sizeof(*audit_mark), GFP_KERNEL);
 	if (unlikely(!audit_mark)) {
@@ -107,9 +97,7 @@ struct audit_fsnotify_mark *audit_alloc_mark(struct audit_krule *krule, char *pa
 	audit_mark->path = pathname;
 	audit_mark->rule = krule;
 
-	audit_update_mark(audit_mark, child);
-	ret = fsnotify_add_inode_mark(&audit_mark->mark, dir, allow_dups);
-
+	ret = fsnotify_add_inode_mark(&audit_mark->mark, path.dentry->d_inode, 0);
 	if (ret < 0) {
 		audit_mark->path = NULL;
 		fsnotify_put_mark(&audit_mark->mark);
