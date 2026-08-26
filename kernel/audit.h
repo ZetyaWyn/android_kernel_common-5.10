@@ -278,7 +278,9 @@ extern void audit_remove_mark(struct audit_fsnotify_mark *audit_mark);
 extern void audit_remove_mark_rule(struct audit_krule *krule);
 extern int audit_mark_compare(struct audit_fsnotify_mark *mark, u64 ino,
 			      dev_t dev);
-extern int audit_dupe_exe(struct audit_krule *new, struct audit_krule *old);
+extern int audit_dupe_exe(struct audit_krule *new,
+                          struct audit_krule *old,
+                          struct audit_watch_ctx *ctx);
 extern int audit_exe_compare(struct task_struct *tsk,
 			     struct audit_fsnotify_mark *mark);
 
