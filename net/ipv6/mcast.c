@@ -118,6 +118,11 @@ int sysctl_mld_qrv __read_mostly = MLD_QRV_DEFAULT;
 	     pmc != NULL;					\
 	     pmc = rcu_dereference(pmc->next))
 
+#define for_each_mc_mclock(idev, mc) \
+        for (mc = mc_dereference((idev)->mc_list, idev); \
+             mc; \
+             mc = mc_dereference(mc->next, idev))
+
 static int unsolicited_report_interval(struct inet6_dev *idev)
 {
 	int iv;
